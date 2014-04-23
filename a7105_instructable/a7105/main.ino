@@ -31,7 +31,9 @@ void loop() {
       //if (state!=0 && state!=1 & state!=128) 
 //Serial.print("State: ");
 
-  
+    while (Serial.available()>3){
+      Serial.read(); //drop old commands pls
+    }
     if (Serial.available()>2){
       
       Serial.println("serial in");
@@ -39,8 +41,7 @@ void loop() {
       in[1] = Serial.read();
       in[2] = Serial.read();
       throttle = atoi(in);
-      Serial.println(throttle);
-   
+      Serial.println(throttle);   
     }
   
   
@@ -51,6 +52,14 @@ void loop() {
 //    Serial.print("hubsanWait: " ); Serial.println(hubsanWait);
 //    Serial.print("waitTime: " ); Serial.println(waitTime);
     //Serial.println(hubsanWait);
+    
+    //finishTime = micros() + hubsanWait;    
+    
+ //   while (micros() < finishTime){
+ //     Serial.read();
+ //   }
+    
+    
     delayMicroseconds(hubsanWait);
     startTime = micros();
     

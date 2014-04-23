@@ -16,11 +16,21 @@ hand_height = 1
 start = False
 ticker = 0
 last_out = 0
+remove_bg = False
 
 while( cap.isOpened() ) :
     ret,img = cap.read()
 
     height = img.shape[0]
+
+    if remove_bg:
+        mask = subtractor.apply(img)
+        mask_inv = cv2.bitwise_not(mask)
+        white = img.copy()
+        white[:] = (255,255,255)
+        img = cv2.bitwise_and(img,img,mask = mask)
+        white = cv2.bitwise_and(white,white,mask = mask_inv)
+        img = cv2.bitwise_or(img, white)
 
 
     """
@@ -38,7 +48,7 @@ while( cap.isOpened() ) :
     """
 
     cascade = cv2.CascadeClassifier("cascades/1256617233-1-haarcascade_hand.xml")
-    rects = cascade.detectMultiScale(img, 1.1, 18, cv2.cv.CV_HAAR_SCALE_IMAGE, (20,20))
+    rects = cascade.detectMultiScale(img, 1.1, 20, cv2.cv.CV_HAAR_SCALE_IMAGE, (20,20))
 
 
     top_hand = height
@@ -65,14 +75,14 @@ while( cap.isOpened() ) :
     #print "height %s hand height %s val %s" % (height, hand_height, out)
 
     out = max(min(out,255),0)
-    out2 = math.floor(out/10)
-    out = out2 * 10
+    out = math.floor(out/10)*10
+    
 
     cv2.putText(img, '%03d' % out, (90,90), 2, 3, 3);
     
     ticker = ticker + 1
 
-    if start and (ticker > 2) and (out != last_out):
+    if start and (ticker > 0) and (out != last_out):
         ticker = 0    
         print '%03d' % out
         ser.write('%03d' % out)
@@ -84,3 +94,8 @@ while( cap.isOpened() ) :
         break
     if k == 32:
         start = True
+    if k == 13:
+        ret,img = cap.read()
+        background = img
+        subtractor = cv2.BackgroundSubtractorMOG2()
+        remove_bg = True

@@ -286,7 +286,7 @@ static u16 hubsan_cb()
             state = DATA_1;
         else
             state++;
-        return 10000;
+        return 10000; //Was 10000
     }
     return 0;
 }
